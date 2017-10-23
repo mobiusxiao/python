@@ -1,0 +1,51 @@
+#coding=utf8
+import pymssql
+import xlrd
+import sys
+
+#合成sql语句
+def sqlyuju(uid,accountid,accumfundaccount,accountname):
+
+    s = "update hrmresource set accountid1 = '%s' accumfundaccount='%s' accountname='%s' where id ='%s';" % (accountid1,accumfundaccount,accountname,uid)
+    return s
+
+#读取Excel表格
+def loadexcel(path):
+    workxl = xlrd.open_workbook(path)
+    sheet = workxl.sheet_by_index(1)
+    return sheet
+
+#写入sql
+def UpdateSql(sheet):
+    conn = pymssql.connect(host = '192.168.1.88',user='sa',password='Pp789456',database='ecologg',charset='utf8')
+    cur = conn.cursor()
+    nrows = sheet.nrows
+    for i in range(1,nrows):
+        query = "update hrmresource set accountid1 = '"+sheet.row_values(i)[1]+"',accumfundaccount='"+sheet.row_values(i)[2]+"',accountname='"+sheet.row_values(i)[3]+"',bankid1='"+sheet.row_values(i)[4]+"' where loginid ='"+sheet.row_values(i)[5]+"'" 
+        try:
+            cur.execute(query)
+            conn.commit()
+            print ('%s succeed!' % sheet.row_values(i)[3])
+
+        except:
+            print ('%s -failed' % sheet.row_values(i)[3])
+    cur.close()  
+    conn.close()
+
+#查询
+def Select(sheet):
+    conn = pymssql.connect(host = '192.168.1.88',user='sa',password='Pp789456',database='ecologg',charset='utf8')
+    cur = conn.cursor()
+    nrows = sheet.nrows
+    for i in range(1,nrows):
+        query = "select accountid1,accumfundaccount,loginid,bankid1 from hrmresource where loginid = '"+sheet.row_values(i)[5]+"'"
+        cur.execute(query)
+        print (cur.fetchall())
+    cur.close()  
+    conn.close()
+
+
+path = r'E:\py\account.xls'
+sheet = loadexcel(path)
+#UpdateSql(sheet)
+#Select(sheet)
